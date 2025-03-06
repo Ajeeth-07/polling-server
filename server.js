@@ -2,54 +2,29 @@ const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
 const { Kafka } = require("kafkajs");
+const prisma = require("./src/db/client");
+const WebSocketManager = require("./src/websocket/wsManager");
+const pollController = require("./src/api/pollController");
+const leaderboardController = require("./src/api/leaderboardController");
+const voteConsumer = require("./src/kafka/consumers/voteConsumer");
 
 // Create Express app
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+
+// Initialize WebSocket manager
+WebSocketManager.init(server);
 
 // Middleware
 app.use(express.json());
 
-// Set up Kafka connection
-const kafka = new Kafka({
-  clientId: "polling-app",
-  brokers: [process.env.KAFKA_BOOTSTRAP_SERVER || "localhost:9092"],
-});
+// Routes
+app.use("/polls", pollController);
+app.use("/leaderboard", leaderboardController);
 
 // Basic health check route
 app.get("/", (req, res) => {
   res.json({ status: "Polling API is running" });
-});
-
-// Routes placeholder - we'll implement these next
-app.post("/polls", (req, res) => {
-  res.status(501).json({ error: "Not implemented yet" });
-});
-
-app.post("/polls/:id/vote", (req, res) => {
-  res.status(501).json({ error: "Not implemented yet" });
-});
-
-app.get("/polls/:id", (req, res) => {
-  res.status(501).json({ error: "Not implemented yet" });
-});
-
-app.get("/leaderboard", (req, res) => {
-  res.status(501).json({ error: "Not implemented yet" });
-});
-
-// WebSocket connection handler
-wss.on("connection", (ws) => {
-  console.log("Client connected");
-
-  ws.on("message", (message) => {
-    console.log("Received message:", message);
-  });
-
-  ws.on("close", () => {
-    console.log("Client disconnected");
-  });
 });
 
 // Kafka topic setup
@@ -85,10 +60,38 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
 
-  // Setup Kafka topics after server starts
+  // Test database connection
   try {
+    // Test Prisma connection by running a simple query
+    await prisma.$queryRaw`SELECT 1`;
+    console.log("Database connection successful");
+
+    // Setup Kafka topics after server starts
     await setupKafkaTopics();
+
+    // Start vote consumer
+    await voteConsumer.startConsuming();
   } catch (error) {
-    console.error("Failed to setup Kafka topics:", error);
+    console.error("Error during startup:", error);
+  }
+});
+
+// Handle graceful shutdown
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM signal received: closing HTTP server");
+  server.close(() => {
+    console.log("HTTP server closed");
+  });
+
+  // Disconnect from Kafka
+  try {
+    await voteConsumer.disconnect();
+    console.log("Kafka consumer disconnected");
+
+    // Close Prisma connection
+    await prisma.$disconnect();
+    console.log("Database connection closed");
+  } catch (error) {
+    console.error("Error during shutdown:", error);
   }
 });

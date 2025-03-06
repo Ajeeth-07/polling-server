@@ -54,8 +54,7 @@ services:
     environment:
       - KAFKA_BOOTSTRAP_SERVER=kafka:29092
       - PORT=3000
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/polling_db
-    volumes:
+      - DATABASE_URL=postgresql://postgres.zvxruzmcqekouymsyfsp:postgres@aws-0-ap-south-1.pooler.supabase.com:5432/postgres
       
 
 volumes:

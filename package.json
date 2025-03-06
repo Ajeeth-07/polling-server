@@ -4,7 +4,7 @@
   "description": "High concurrency polling app using Kafka,node,websockets,postgres etc",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "npx prisma migrate deploy && node server.js",
     "dev": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

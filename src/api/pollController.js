@@ -53,6 +53,12 @@ router.post("/:id/vote", async(req,res) => {
         const poll = await pollRepository.findById(pollId);
         if(!poll) return res.status(404).json({error:"No poll found"});
 
+        //check if options exists in the poll
+        const validOption = poll.options.some(option => option.id === optionId);
+        if(!validOption){
+            return res.status(400).json({error:"Invalid option"})
+        }
+
         //send vote to kafka
         await voteProducer.sendVote(pollId, optionId);
 

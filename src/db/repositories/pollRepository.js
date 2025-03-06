@@ -65,6 +65,14 @@ class PollRepository {
     
     if (!poll) return false;
 
+    //validation of option
+    const options = poll.options;
+    const validOption = options.some(opt => opt.id === optionId);
+    if(!validOption){
+        console.warn(`Attempted to vote with invalid option ${optionId} for poll: ${pollId}`);
+        return false;
+    }
+
     // Add vote record
     await prisma.vote.create({
       data: {

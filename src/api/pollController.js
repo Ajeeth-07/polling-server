@@ -19,6 +19,7 @@ router.post("/", async(req, res) => {
         res.status(201).json(poll);
     }catch(err){
         console.error(err);
+        res.status(500).json({error:"internal server error"});
     }
 });
 
@@ -46,7 +47,7 @@ router.post("/:id/vote", async(req,res) => {
 
         //validation
         if(!optionId){
-            return res.status(200).json({error:"Option id is required"})
+            return res.status(400).json({error:"Option id is required"})
         }
 
         const poll = await pollRepository.findById(pollId);

@@ -29,6 +29,18 @@ services:
     volumes:
       - kafka_data:/bitnami/kafka
 
+  postgres:
+    image: postgres:14
+    container_name: polling-app-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=polling_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   backend:
     build:
       context: ..
@@ -38,9 +50,11 @@ services:
       - "3000:3000"
     depends_on:
       - kafka
+      - postgres
     environment:
       - KAFKA_BOOTSTRAP_SERVER=kafka:29092
       - PORT=3000
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/polling_db
     volumes:
       - ../:/app
       - /app/node_modules
@@ -48,3 +62,4 @@ services:
 volumes:
   zookeeper_data:
   kafka_data:
+  postgres_data:

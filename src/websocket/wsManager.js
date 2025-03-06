@@ -38,7 +38,7 @@ class WebSocketManager {
                 if(!this.clients.has('leaderboard')){
                     this.clients.set('leaderboard', new Set());
                 }
-                this.clients.get('leaderboard'.add(ws));
+                this.clients.get('leaderboard').add(ws);
 
                 console.log('Client subscribed to leaderboard');
 

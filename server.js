@@ -30,20 +30,25 @@ app.get("/", (req, res) => {
 // Kafka topic setup
 async function setupKafkaTopics() {
   try {
+    const kafka = new Kafka({
+      clientId : 'polling-app-admin',
+      brokers: [process.env.KAFKA_BOOTSTRAP_SERVER || 'localhost:9092']
+    });
+
     const admin = kafka.admin();
     await admin.connect();
 
     await admin.createTopics({
-      topics: [
+      topics : [
         {
-          topic: "poll-votes",
-          numPartitions: 3, // Multiple partitions for concurrent voting
-          replicationFactor: 1,
+          topic : "poll-votes",
+          numPartitions:3, // multiple partitions for concurrent voting
+          replicationFactor:1,
         },
         {
-          topic: "poll-results",
-          numPartitions: 1,
-          replicationFactor: 1,
+          topic:"poll-results",
+          numPartitions:1,
+          replicationFactor:1,
         },
       ],
     });

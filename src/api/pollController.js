@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const pollRepository = require("../db/repositories/pollRepository");
-const voteProducer = require("../kafka/producers/VoteProducer");
+const voteProducer = require("../kafka/producers/voteProducer");
 
 //creating new poll
 router.post("/", async(req, res) => {
@@ -39,7 +39,7 @@ router.get("/:id", async(req,res) => {
 });
 
 //vote on a poll
-router.post("/:id/:vote", async(req,res) => {
+router.post("/:id/vote", async(req,res) => {
     try{
         const {optionId} = req.body;
         const pollId = req.params.id;

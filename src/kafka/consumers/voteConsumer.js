@@ -7,7 +7,7 @@ class VoteConsumer {
     constructor(){
         this.kafka = new Kafka({
             clientId: 'vote-consumer',
-            brokers: [process.env.KAFKA_BOOTSTRAP_SERVER || 'localhost":9092']
+            brokers: [process.env.KAFKA_BOOTSTRAP_SERVER || 'localhost:9092']
         });
 
         this.consumer = this.kafka.consumer({groupId: 'poll-vote-processors'});

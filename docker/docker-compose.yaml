@@ -56,7 +56,7 @@ services:
       - PORT=3000
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/polling_db
     volumes:
-      - ../:/app
+      
 
 volumes:
   zookeeper_data:
